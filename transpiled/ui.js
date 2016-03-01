@@ -34,6 +34,8 @@ var _invariant2 = _interopRequireDefault(_invariant);
 
 var _actionReducer = require('./action-reducer');
 
+var _immutable = require('immutable');
+
 var any = _react.PropTypes.any;
 var array = _react.PropTypes.array;
 var func = _react.PropTypes.func;
@@ -41,8 +43,12 @@ var node = _react.PropTypes.node;
 var object = _react.PropTypes.object;
 var string = _react.PropTypes.string;
 
+var getUiState = function getUiState(state) {
+  return _immutable.Map.isMap(state) ? state.get('ui') : state.ui;
+};
+
 var connector = (0, _reactRedux.connect)(function (state) {
-  return { ui: state.ui };
+  return { ui: getUiState(state) };
 }, function (dispatch) {
   return (0, _redux.bindActionCreators)({
     updateUI: _actionReducer.updateUI,
@@ -131,7 +137,7 @@ function ui(key) {
           // We can only see if this component's state is blown away by
           // accessing the current global UI state; the parent will not
           // necessarily always pass down child state.
-          var ui = this.context.store.getState().ui;
+          var ui = getUiState(this.context.store.getState());
           if (ui.getIn(this.uiPath) === undefined && opts.state) {
             var state = this.getDefaultUIState(opts.state, nextProps);
             this.props.setDefaultUI(this.uiPath, opts.state);
@@ -308,7 +314,7 @@ function ui(key) {
           //
           // We still use @connect() to connect to the store and listen for
           // changes in other cases.
-          var ui = this.context.store.getState().ui;
+          var ui = getUiState(this.context.store.getState());
 
           return Object.keys(this.uiVars).reduce(function (props, k) {
             props[k] = ui.getIn(_this4.uiVars[k].concat(k));
